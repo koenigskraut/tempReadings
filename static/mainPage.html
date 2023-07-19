@@ -37,7 +37,7 @@
                 radiator.textContent = (json["radiator"]>0? "+" : "") + json["radiator"] + "°C";
                 outside.textContent = (json["outside"]>0? "+" : "") + json["outside"] + "°C";
                 updateTime();
-                await delay(10000);
+                await delay(2000);
             }
         }
     </script>
@@ -128,37 +128,37 @@
     
     <div class="container-element centered">
         <div class="image-box one">
-            <img src="static/room.svg" alt="" />
+            <img src="static/room.svg" alt="" title="Дома" />
         </div>
         <div class="text-box one">
-            <p id="inside"></p>
+            <p id="inside" title="Дома"></p>
         </div>
     </div>
 
     <div class="container-element centered">
         <div class="image-box two">
-            <img src="static/heating-radiator.svg" alt="" />
+            <img src="static/heating-radiator.svg" alt="" title="Радиатор" />
         </div>
         <div class="text-box two">
-            <p id="radiator"></p>
+            <p id="radiator" title="Радиатор"></p>
         </div>
     </div>
 
     <div class="container-element centered">
         <div class="image-box three">
-            <img src="static/door-opened.svg" alt="" />
+            <img src="static/door-opened.svg" alt="" title="На улице" />
         </div>
         <div class="text-box three">
-            <p id="outside"></p>
+            <p id="outside" title="На улице"></p>
         </div>
     </div>
 
     <div class="container-element centered">
         <div class="image-box four">
-            <img src="static/time-span.svg" alt="" />
+            <img src="static/time-span.svg" alt="" title="Последнее обновление" />
         </div>
         <div class="text-box four">
-            <p id="updated"></p>
+            <p id="updated" title="Последнее обновление"></p>
         </div>
     </div>
 </div>
