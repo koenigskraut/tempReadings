@@ -17,11 +17,7 @@ func getRoot(writer http.ResponseWriter, _ *http.Request) {
 }
 
 func getLastReading(w http.ResponseWriter, _ *http.Request) {
-	const query = `SELECT id, inside, radiator, outside, added 
-				   FROM temperature 
-				   ORDER BY id DESC 
-				   LIMIT 1`
-	row := db.QueryRow(query)
+	row := db.QueryRow(LastReadingQuery)
 	if row == nil {
 		w.Write([]byte("{}"))
 		return
@@ -32,5 +28,55 @@ func getLastReading(w http.ResponseWriter, _ *http.Request) {
 	}
 	if err := json.NewEncoder(w).Encode(&t); err != nil {
 		log.Println(err)
+	}
+}
+
+type LimitOffset struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}
+
+type ReadingsType int
+
+const (
+	LastReadings ReadingsType = iota
+	FirstReadings
+)
+
+func getNReadings(rt ReadingsType) func(w http.ResponseWriter, r *http.Request) {
+	var query string
+	if rt == LastReadings {
+		query = LastNReadingsQuery
+	} else {
+		query = FirstNReadingsQuery
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		var args LimitOffset
+		err := json.NewDecoder(r.Body).Decode(&args)
+		if err != nil {
+			log.Println("Reading data error:", err)
+			w.Write([]byte("[]"))
+			return
+		}
+		scanned := make([]Temperature, 0, args.Limit)
+		rows, err := db.Query(query, args.Limit, args.Offset)
+		if err != nil {
+			log.Println("Query error:", err)
+		}
+		if rows == nil {
+			w.Write([]byte("[]"))
+			return
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var t Temperature
+			if err := rows.Scan(&t.Id, &t.Inside, &t.Radiator, &t.Outside, &t.Added); err != nil {
+				log.Println(err)
+			}
+			scanned = append(scanned, t)
+		}
+		if err := json.NewEncoder(w).Encode(&scanned); err != nil {
+			log.Println(err)
+		}
 	}
 }

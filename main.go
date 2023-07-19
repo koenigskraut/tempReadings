@@ -13,6 +13,7 @@ var content embed.FS
 var domain, certFile, keyFile string
 
 func main() {
+	log.Println("running")
 	domain = os.Getenv("DOMAIN")
 	certFile = os.Getenv("CERT_FILE")
 	keyFile = os.Getenv("KEY_FILE")
@@ -25,7 +26,9 @@ func main() {
 	fs := http.FileServer(http.FS(content))
 	mux := http.NewServeMux()
 	mux.Handle("/static/", fs)
-	mux.HandleFunc("/api/lastReading/", getLastReading)
+	mux.HandleFunc("/api/lastReading", getLastReading)
+	mux.HandleFunc("/api/lastNReadings", getNReadings(LastReadings))
+	mux.HandleFunc("/api/firstNReadings", getNReadings(FirstReadings))
 	mux.HandleFunc("/", getRoot)
 
 	go func() {

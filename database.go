@@ -20,6 +20,33 @@ type Temperature struct {
 	Added    time.Time `json:"added"`
 }
 
+// LastReadingQuery fetches last temperature reading, no arguments required
+const LastReadingQuery = `
+SELECT id, inside, radiator, outside, added 
+FROM temperature 
+ORDER BY id DESC 
+LIMIT 1
+`
+
+// LastNReadingsQuery fetches last N temperature readings with offset O, N and O are integer arguments
+const LastNReadingsQuery = `
+SELECT * FROM (
+	SELECT id, inside, radiator, outside, added
+	FROM temperature
+	ORDER BY id DESC
+	LIMIT ? OFFSET ?
+) _
+ORDER BY id ASC
+`
+
+// FirstNReadingsQuery fetches first N temperature readings with offset O, N and O are integer arguments
+const FirstNReadingsQuery = `
+SELECT id, inside, radiator, outside, added
+FROM temperature
+ORDER BY id ASC
+LIMIT ? OFFSET ?
+`
+
 func initDB() io.Closer {
 	var err error
 	dbUser := os.Getenv("DB_USER")
