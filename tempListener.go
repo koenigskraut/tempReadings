@@ -8,8 +8,6 @@ import (
 	"os"
 )
 
-const InsertQuery = "INSERT INTO temperature (inside, radiator, outside) VALUES (?,?,?)"
-
 func processReadings(data []byte) {
 	if len(data) != 6 {
 		log.Println("ERROR")

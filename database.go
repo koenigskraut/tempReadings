@@ -20,6 +20,11 @@ type Temperature struct {
 	Added    time.Time `json:"added"`
 }
 
+// InsertQuery inserts readings into the table, accepts three float32 arguments
+const InsertQuery = `
+INSERT INTO temperature (inside, radiator, outside) VALUES (?,?,?)
+`
+
 // LastReadingQuery fetches last temperature reading, no arguments required
 const LastReadingQuery = `
 SELECT id, inside, radiator, outside, added 
