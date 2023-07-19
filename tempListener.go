@@ -8,20 +8,19 @@ import (
 	"os"
 )
 
+const InsertQuery = "INSERT INTO temperature (inside, radiator, outside) VALUES (?,?,?)"
+
 func processReadings(data []byte) {
-	var temps [3]float32
 	if len(data) != 6 {
 		log.Println("ERROR")
 		return
 	}
+	var temps [3]float32
 	for i := 0; i <= 4; i += 2 {
 		temp := int16(binary.BigEndian.Uint16(data[i : i+2]))
 		temps[i/2] = float32(temp) / 125
 	}
-	insert, err := db.Query(
-		"INSERT INTO temperature (inside, radiator, outside) VALUES (?,?,?)",
-		temps[0], temps[1], temps[2],
-	)
+	insert, err := db.Query(InsertQuery, temps[0], temps[1], temps[2])
 	if err != nil {
 		log.Println(err)
 	}
