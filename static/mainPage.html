@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Температура</title>
+    <script>
+
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+        let lastDate = new Date();
+
+        async function updateTime() {
+            const updated = document.getElementById("updated");
+            updateTime = function(){};
+            while (true) {
+                const nowDate = new Date();
+                let diff = (nowDate.getTime() - lastDate.getTime())/1000;
+                diff = diff>0 ? diff.toFixed(2) : 0;
+                const formattedDiff = diff > 0? diff + " секунды назад <br>(" : "только что <br>("
+                const options = { month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+                updated.innerHTML = formattedDiff + lastDate.toLocaleDateString("ru-RU", options) + ")";
+                await delay(100);
+            }
+        }
+
+        async function f() {
+            const inside = document.getElementById("inside");
+            const radiator = document.getElementById("radiator");
+            const outside = document.getElementById("outside");
+
+            while (true) {
+                const response = await fetch("/api/lastReading", {
+                    method: 'GET'
+                });
+                const json = await response.json();
+                lastDate = new Date(json["added"]);
+                inside.textContent = (json["inside"]>0? "+" : "") + json["inside"] + "°C";
+                radiator.textContent = (json["radiator"]>0? "+" : "") + json["radiator"] + "°C";
+                outside.textContent = (json["outside"]>0? "+" : "") + json["outside"] + "°C";
+                updateTime();
+                await delay(10000);
+            }
+        }
+    </script>
+
+    <style>
+        body{
+            background-color: #ADD8E6;
+            margin: 0;
+        }
+        div.container {
+            display: flex;
+            flex-direction: column;
+            margin-top: 2vh;
+        }
+        div.container-element {
+            display: flex;
+            flex-direction: row;
+            padding-bottom: 1%;
+        }
+        div.centered {
+            margin: auto;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        div.image-box {
+            /*background-color: rgba(53,255,0,0.7);*/
+            height: 18vh;
+            width: 18vh;
+            margin-right: 1%;
+        }
+        div.text-box {
+            /*background-color: rgba(140, 0, 255, 0.7);*/
+            height: 18vh;
+            width: 72vh;
+        }
+        div.text-box p {
+            font-family: system-ui;
+            font-weight: 300;
+            font-size: 7vh;
+            text-align: center;
+            position: relative;
+            top: -3.5vh;
+        }
+
+        div.image-box.four{
+            position: relative;
+            top: 4.5vh;
+        }
+        div.text-box.four {
+            height: 27vh;
+        }
+        div.text-box.four p {
+            top: -3.5vh;
+        }
+
+        @media (max-aspect-ratio: 1/1) {
+            div.image-box {
+                /*background-color: rgba(255, 0, 0, 0.7);*/
+                height: 18vw;
+                width: 18vw;
+            }
+            div.text-box {
+                /*background-color: rgba(255, 242, 0, 0.7);*/
+                height: 18vw;
+                width: 72vw;
+            }
+            div.text-box p {
+                font-size: 7vw;
+                top: -3.5vw;
+            }
+
+            div.image-box.four{
+                top: 4.5vw;
+            }
+            div.text-box.four {
+                height: 27vw;
+            }
+            div.text-box.four p {
+                top: -3.5vw;
+            }
+        }
+    </style>
+</head>
+<body onload="f();">
+<div class="container">
+    
+    <div class="container-element centered">
+        <div class="image-box one">
+            <img src="static/room.svg" alt="" />
+        </div>
+        <div class="text-box one">
+            <p id="inside"></p>
+        </div>
+    </div>
+
+    <div class="container-element centered">
+        <div class="image-box two">
+            <img src="static/heating-radiator.svg" alt="" />
+        </div>
+        <div class="text-box two">
+            <p id="radiator"></p>
+        </div>
+    </div>
+
+    <div class="container-element centered">
+        <div class="image-box three">
+            <img src="static/door-opened.svg" alt="" />
+        </div>
+        <div class="text-box three">
+            <p id="outside"></p>
+        </div>
+    </div>
+
+    <div class="container-element centered">
+        <div class="image-box four">
+            <img src="static/time-span.svg" alt="" />
+        </div>
+        <div class="text-box four">
+            <p id="updated"></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
