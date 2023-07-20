@@ -52,6 +52,18 @@ ORDER BY id ASC
 LIMIT ? OFFSET ?
 `
 
+// AverageByTimeQuery fetches all data averaged by specified time interval T in seconds,
+// T is an integer argument (accepted twice)
+const AverageByTimeQuery = `
+SELECT AVG(t.inside) inside, AVG(t.radiator) radiator, AVG(t.outside) outside, FROM_UNIXTIME(t.added) added
+FROM (
+	SELECT inside, radiator, outside, FLOOR(UNIX_TIMESTAMP(added)/?) * ? added
+	FROM temperature
+	ORDER BY added ASC
+) t
+GROUP BY t.added
+`
+
 func initDB() io.Closer {
 	var err error
 	dbUser := os.Getenv("DB_USER")

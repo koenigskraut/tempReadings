@@ -29,6 +29,7 @@ func main() {
 	mux.HandleFunc("/api/lastReading", getLastReading)
 	mux.HandleFunc("/api/lastNReadings", getNReadings(LastReadings))
 	mux.HandleFunc("/api/firstNReadings", getNReadings(FirstReadings))
+	mux.HandleFunc("/api/averageReadings", getAverageReadings)
 	mux.HandleFunc("/", getRoot)
 
 	go func() {

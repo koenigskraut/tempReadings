@@ -80,3 +80,37 @@ func getNReadings(rt ReadingsType) func(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 }
+
+type AveragingInterval struct {
+	Seconds int `json:"seconds"`
+}
+
+func getAverageReadings(w http.ResponseWriter, r *http.Request) {
+	var arg AveragingInterval
+	err := json.NewDecoder(r.Body).Decode(&arg)
+	if err != nil {
+		log.Println("Reading data error:", err)
+		w.Write([]byte("[]"))
+		return
+	}
+	scanned := make([]Temperature, 0, 1024)
+	rows, err := db.Query(AverageByTimeQuery, arg.Seconds, arg.Seconds)
+	if err != nil {
+		log.Println("Query error:", err)
+	}
+	if rows == nil {
+		w.Write([]byte("[]"))
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var t Temperature
+		if err := rows.Scan(&t.Inside, &t.Radiator, &t.Outside, &t.Added); err != nil {
+			log.Println(err)
+		}
+		scanned = append(scanned, t)
+	}
+	if err := json.NewEncoder(w).Encode(&scanned); err != nil {
+		log.Println(err)
+	}
+}
