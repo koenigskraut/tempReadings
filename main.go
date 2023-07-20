@@ -30,6 +30,7 @@ func main() {
 	mux.HandleFunc("/api/lastNReadings", getNReadings(LastReadings))
 	mux.HandleFunc("/api/firstNReadings", getNReadings(FirstReadings))
 	mux.HandleFunc("/api/averageReadings", getAverageReadings)
+	mux.HandleFunc("/api/minMaxReadings", getMinMaxReadings)
 	mux.HandleFunc("/", getRoot)
 
 	go func() {

@@ -65,6 +65,24 @@ GROUP BY t.added
 LIMIT 2000
 `
 
+// MinMaxByTimeQuery fetches all data min-maxed by specified time interval T in seconds,
+// that is, for given interval T it returns min and max values on it,
+// T is an integer argument (accepted twice)
+const MinMaxByTimeQuery = `
+SELECT 
+    MIN(t.inside) inside_min, MAX(t.inside) inside_max, 
+    MIN(t.radiator) radiator_min, MAX(t.radiator) radiator_max,
+    MIN(t.outside) outside_min, MAX(t.outside) outside_max,
+    FROM_UNIXTIME(t.added) added
+FROM (
+	SELECT inside, radiator, outside, FLOOR(UNIX_TIMESTAMP(added)/?) * ? added
+	FROM temperature
+	ORDER BY added ASC
+) t
+GROUP BY t.added
+LIMIT 2000
+`
+
 func initDB() io.Closer {
 	var err error
 	dbUser := os.Getenv("DB_USER")

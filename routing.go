@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 )
 
 func redirectTLS(w http.ResponseWriter, r *http.Request) {
@@ -109,6 +110,48 @@ func getAverageReadings(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var t Temperature
 		if err := rows.Scan(&t.Inside, &t.Radiator, &t.Outside, &t.Added); err != nil {
+			log.Println(err)
+		}
+		scanned = append(scanned, t)
+	}
+	if err := json.NewEncoder(w).Encode(&scanned); err != nil {
+		log.Println(err)
+	}
+}
+
+type MinMaxTemp struct {
+	InsideMin   float32   `json:"inside_min"`
+	InsideMax   float32   `json:"inside_max"`
+	RadiatorMin float32   `json:"radiator_min"`
+	RadiatorMax float32   `json:"radiator_max"`
+	OutsideMin  float32   `json:"outside_min"`
+	OutsideMax  float32   `json:"outside_max"`
+	Added       time.Time `json:"added"`
+}
+
+func getMinMaxReadings(w http.ResponseWriter, r *http.Request) {
+	var arg AveragingInterval
+	err := json.NewDecoder(r.Body).Decode(&arg)
+	if err != nil {
+		log.Println("Reading data error:", err)
+		w.Write([]byte("[]"))
+		return
+	}
+	scanned := make([]MinMaxTemp, 0, 1024)
+	rows, err := db.Query(MinMaxByTimeQuery, arg.Seconds, arg.Seconds)
+	if err != nil {
+		log.Println("Query error:", err)
+	}
+	if rows == nil {
+		w.Write([]byte("[]"))
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var t MinMaxTemp
+		if err := rows.Scan(
+			&t.InsideMin, &t.InsideMax, &t.RadiatorMin, &t.RadiatorMax, &t.OutsideMin, &t.OutsideMax, &t.Added,
+		); err != nil {
 			log.Println(err)
 		}
 		scanned = append(scanned, t)
