@@ -20,7 +20,7 @@ func getRoot(writer http.ResponseWriter, _ *http.Request) {
 func getLastReading(w http.ResponseWriter, _ *http.Request) {
 	row := db.QueryRow(LastReadingQuery)
 	if row == nil {
-		w.Write([]byte("{}"))
+		w.Write([]byte(`{"error": "no data"}`))
 		return
 	}
 	var t Temperature
@@ -56,7 +56,7 @@ func getNReadings(rt ReadingsType) func(w http.ResponseWriter, r *http.Request) 
 		err := json.NewDecoder(r.Body).Decode(&args)
 		if err != nil {
 			log.Println("Reading data error:", err)
-			w.Write([]byte("[]"))
+			w.Write([]byte(`{"error": "malformed input"}`))
 			return
 		}
 		if args.Limit > 2000 {
@@ -94,7 +94,7 @@ func getAverageReadings(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&arg)
 	if err != nil {
 		log.Println("Reading data error:", err)
-		w.Write([]byte("[]"))
+		w.Write([]byte(`{"error": "malformed input"}`))
 		return
 	}
 	scanned := make([]Temperature, 0, 1024)
@@ -134,7 +134,7 @@ func getMinMaxReadings(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&arg)
 	if err != nil {
 		log.Println("Reading data error:", err)
-		w.Write([]byte("[]"))
+		w.Write([]byte(`{"error": "malformed input"}`))
 		return
 	}
 	scanned := make([]MinMaxTemp, 0, 1024)
