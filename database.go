@@ -62,6 +62,7 @@ FROM (
 	ORDER BY added ASC
 ) t
 GROUP BY t.added
+LIMIT 2000
 `
 
 func initDB() io.Closer {

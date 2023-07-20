@@ -58,6 +58,9 @@ func getNReadings(rt ReadingsType) func(w http.ResponseWriter, r *http.Request) 
 			w.Write([]byte("[]"))
 			return
 		}
+		if args.Limit > 2000 {
+			args.Limit = 2000
+		}
 		scanned := make([]Temperature, 0, args.Limit)
 		rows, err := db.Query(query, args.Limit, args.Offset)
 		if err != nil {
