@@ -3,15 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Температура</title>
+    <script type="text/javascript" src="https://unpkg.com/dygraphs@2.2.1/dist/dygraph.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/dygraphs@2.2.1/dist/dygraph.min.css" />
     <script>
 
-    const delay = ms => new Promise(res => setTimeout(res, ms));
+        const delay = ms => new Promise(res => setTimeout(res, ms));
         let lastDate = new Date();
+        let keepUpdating = true;
 
         async function updateTime() {
             const updated = document.getElementById("updated");
             updateTime = function(){};
             while (true) {
+                if (!keepUpdating) {
+                    await delay(100);
+                    continue;
+                }
                 const nowDate = new Date();
                 let diff = (nowDate.getTime() - lastDate.getTime())/1000;
                 diff = diff>0 ? diff.toFixed(2) : 0;
@@ -28,8 +35,12 @@
             const outside = document.getElementById("outside");
 
             while (true) {
-                const response = await fetch("/api/lastReading", {
-                    method: 'GET'
+                if (!keepUpdating) {
+                    await delay(1000);
+                    continue;
+                }
+                const response = await fetch("./api/lastReading", {
+                    method: 'POST'
                 });
                 const json = await response.json();
                 lastDate = new Date(json["added"]);
@@ -40,6 +51,46 @@
                 await delay(2000);
             }
         }
+
+        let temperatureLayout = true;
+        let g;
+        async function changeLayout() {
+            const svg = document.getElementById("layout-btn");
+            svg.src = temperatureLayout ? "static/thermometer.svg" : "static/chart.svg";
+            svg.title = temperatureLayout ? "Температура" : "Графики";
+            keepUpdating = !temperatureLayout;
+            const elems = document.getElementsByClassName("container-element");
+            for (const e of elems) {
+                e.style.display = e.style.display === "none" ? "flex" : "none";
+            }
+
+            if (temperatureLayout) {
+                g.resize();
+            }
+            temperatureLayout = !temperatureLayout;
+        }
+
+        window.onload = f;
+
+        Dygraph.onDOMready(async function onDOMready() {
+            const response = await fetch("./api/averageReadings", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({seconds: 60})
+            });
+            const content = await response.json();
+            console.log(content);
+            let arr = Array.from(content).map(e => [new Date(e.added), e.inside, e.radiator, e.outside]);
+            console.log(arr);
+            g = new Dygraph(
+                document.getElementById("graphdiv"),
+                arr,
+                {labels: ["Время", "Дома", "Радиатор", "Улица"], strokeWidth: 2.0}
+            );
+        });
     </script>
 
     <style>
@@ -95,6 +146,33 @@
             top: -3.5vh;
         }
 
+        div.image-box.chart-btn{
+            display: block;
+            position: absolute;
+            top: 0.2vh;
+            right: 0.2vh;
+        }
+        div.image-box.chart-btn:active{
+            scale: 90%;
+        }
+
+        div.chart-box {
+            height: 90vh !important;
+            width: 90vw !important;
+        }
+
+        .dygraph-legend {
+            background-color: rgba(255,255,255,0.60);
+            font-size: 2vh;
+            font-family: system-ui;
+            font-weight: 300;
+        }
+        .dygraph-axis-label {
+            font-size: 2vh;
+            font-family: system-ui;
+            font-weight: 300;
+        }
+
         @media (max-aspect-ratio: 1/1) {
             div.image-box {
                 /*background-color: rgba(255, 0, 0, 0.7);*/
@@ -120,10 +198,27 @@
             div.text-box.four p {
                 top: -3.5vw;
             }
+
+            div.image-box.chart-btn{
+                top: 0.2vw;
+                right: 0.2vw;
+            }
+
+            div.chart-box {
+                height: 80vw !important;
+                width: 90vw !important;
+            }
+
+            .dygraph-legend {
+                font-size: 2vw;
+            }
+            .dygraph-axis-label {
+                font-size: 2vw;
+            }
         }
     </style>
 </head>
-<body onload="f();">
+<body>
 <div class="container">
     
     <div class="container-element centered">
@@ -161,6 +256,13 @@
             <p id="updated" title="Последнее обновление"></p>
         </div>
     </div>
+
+    <div class="container-element centered" id="chart-parent" style="display: none;">
+        <div class="chart-box" id="graphdiv"></div>
+    </div>
+</div>
+<div class="image-box chart-btn">
+    <img src="static/chart.svg" alt="" title="Графики" id="layout-btn" onclick="changeLayout();"/>
 </div>
 </body>
 </html>
