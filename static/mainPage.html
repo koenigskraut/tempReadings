@@ -82,9 +82,7 @@
                 body: JSON.stringify({seconds: 60})
             });
             const content = await response.json();
-            console.log(content);
             let arr = Array.from(content).map(e => [new Date(e.added), e.inside, e.radiator, e.outside]);
-            console.log(arr);
             g = new Dygraph(
                 document.getElementById("graphdiv"),
                 arr,
@@ -116,13 +114,11 @@
         }
 
         div.image-box {
-            /*background-color: rgba(53,255,0,0.7);*/
             height: 18vh;
             width: 18vh;
             margin-right: 1%;
         }
         div.text-box {
-            /*background-color: rgba(140, 0, 255, 0.7);*/
             height: 18vh;
             width: 72vh;
         }
@@ -175,12 +171,10 @@
 
         @media (max-aspect-ratio: 1/1) {
             div.image-box {
-                /*background-color: rgba(255, 0, 0, 0.7);*/
                 height: 18vw;
                 width: 18vw;
             }
             div.text-box {
-                /*background-color: rgba(255, 242, 0, 0.7);*/
                 height: 18vw;
                 width: 72vw;
             }
