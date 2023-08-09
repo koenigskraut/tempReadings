@@ -112,6 +112,12 @@
             display: flex;
             justify-content: center;
         }
+        div.non-selectable {
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
 
         div.image-box {
             height: 18vh;
@@ -216,37 +222,37 @@
 <div class="container">
     
     <div class="container-element centered">
-        <div class="image-box one">
-            <img src="static/room.svg" alt="" title="Дома" />
+        <div class="image-box non-selectable one">
+            <img src="static/room.svg" draggable="false" alt="" title="Дома" />
         </div>
-        <div class="text-box one">
+        <div class="text-box non-selectable one">
             <p id="inside" title="Дома"></p>
         </div>
     </div>
 
     <div class="container-element centered">
-        <div class="image-box two">
-            <img src="static/heating-radiator.svg" alt="" title="Радиатор" />
+        <div class="image-box non-selectable two">
+            <img src="static/heating-radiator.svg" draggable="false" alt="" title="Радиатор" />
         </div>
-        <div class="text-box two">
+        <div class="text-box non-selectable two">
             <p id="radiator" title="Радиатор"></p>
         </div>
     </div>
 
     <div class="container-element centered">
-        <div class="image-box three">
-            <img src="static/door-opened.svg" alt="" title="На улице" />
+        <div class="image-box non-selectable three">
+            <img src="static/door-opened.svg" draggable="false" alt="" title="На улице" />
         </div>
-        <div class="text-box three">
+        <div class="text-box non-selectable three">
             <p id="outside" title="На улице"></p>
         </div>
     </div>
 
     <div class="container-element centered">
-        <div class="image-box four">
-            <img src="static/time-span.svg" alt="" title="Последнее обновление" />
+        <div class="image-box non-selectable four">
+            <img src="static/time-span.svg" draggable="false" alt="" title="Последнее обновление" />
         </div>
-        <div class="text-box four">
+        <div class="text-box non-selectable four">
             <p id="updated" title="Последнее обновление"></p>
         </div>
     </div>
@@ -255,8 +261,8 @@
         <div class="chart-box" id="graphdiv"></div>
     </div>
 </div>
-<div class="image-box chart-btn">
-    <img src="static/chart.svg" alt="" title="Графики" id="layout-btn" onclick="changeLayout();"/>
+<div class="image-box non-selectable chart-btn">
+    <img src="static/chart.svg" draggable="false" alt="" title="Графики" id="layout-btn" onclick="changeLayout();"/>
 </div>
 </body>
 </html>
